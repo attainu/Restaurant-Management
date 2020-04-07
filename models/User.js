@@ -38,7 +38,7 @@ const userSchema = new Schema(
 userSchema.statics.findByEmailAndPassword = async (email, password) => {
   try {
     const user = await User.findOne({ email: email });
-    if (!user) throw new Error("Incorrect Credentials");
+    if (!user) throw new Error("Incorrect hai Credentials");
     const isMatched = await bcrypt.compare(password, user.password);
     if (!isMatched) throw new Error("Incorrect Credentials");
     return user;
@@ -63,11 +63,10 @@ userSchema.methods.toJSON = function() {
   delete user.password;
   delete user.accessToken;
   delete user.__v;
-  // Super important
   return user;
 };
 
-// I should avoid rehashing the password twice.
+//avoiding rehashing the password twice.
 userSchema.pre("save", async function(next) {
   const user = this;
   try {

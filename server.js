@@ -1,13 +1,10 @@
 const express = require("express");
-const passport = require("passport");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const body_parser = require('body-parser'); 
 const morgan = require('morgan');
-const cors = require("cors");
 dotenv.config();
 require("./db");
-require("./passport");
 
 // Routes of API
 const userRoutes = require("./routes/userRoutes");
@@ -39,7 +36,6 @@ app.use((req,res,next) => {
 });
 
 app.use(express.json());
-app.use(passport.initialize());
 
 //init of the routes
 app.use('/user',userRoutes);
@@ -51,19 +47,12 @@ app.use('/',home_page);
 
 //unknown error handling
 app.use((req,res,next) => {
-  const error = new Error("!!!!!  YOU did Something WRONG! Sorry, Try Again  !!!!!");
-  error.status = 404;
-  next(error);
-})
-
-app.use((error, req,res,next) => {
-  res.status(error.status || 500);
-  res.json({
-    error: {
-      message: error.message
-    }
+   res.json({
+    status_code: 404,
+    error: `!!!!!  YOU did Something WRONG! Sorry, Try Again  !!!!!`
   })
 })
+
 
 //my port
 const port = 1234

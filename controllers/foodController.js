@@ -33,14 +33,14 @@ all_food(req,res,next){
 async add_food(req,res,next){
     console.log(req.file)
     try {
-        const { publisher, title, source_url, recipe_id, image_url, social_rank, publisher_url} = req.body;
-        // if(!publisher || !title || !source_url || !recipe_id || !image_url || !social_rank || !publisher_url) {
-        //     return res
-        //     .send({ 
-        //         statusCode: 400,
-        //         message: "Bad request"             
-        //     })
-        // }
+        const { publisher, title, source_url, recipe_id, image_url=req.file, social_rank, publisher_url} = req.body;
+        if(!publisher || !title || !source_url || !recipe_id || !image_url || !social_rank || !publisher_url){
+            return res
+            .send({ 
+                statusCode: 400,
+                message: "Bad request"             
+            })
+        }
         const recepie = await Food.create({
             publisher: req.body.publisher_name,
             title: req.body.title,

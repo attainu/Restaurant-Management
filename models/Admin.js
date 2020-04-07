@@ -18,14 +18,12 @@ const adminSchema = new Schema(
     },
     password: {
       type: String,
-      required: function() {
-        return !this.isThirdPartyAdmin;
-      },
+      required: true,
       trim: true
     },
     isThirdPartyAdmin: {
       type: Boolean,
-      required: true
+      required: false
     },
     accessToken: {
       type: String,
