@@ -1,4 +1,5 @@
 const Food = require("../models/food");
+const review = require("../controllers/reviewController");
 
 module.exports = {
 all_food(req,res,next){
@@ -18,6 +19,7 @@ all_food(req,res,next){
                         Image_url: food_dekho.image_url,
                         // social_rank: food_dekho.social_rank,
                         // publisher_url: food_dekho.publisher_url,
+                        Reviews: "apple",
                         Request : {
                             TYPE: "GET",
                             MORE_DETAILS : 'http://localhost:1234/food/' + food_dekho._id

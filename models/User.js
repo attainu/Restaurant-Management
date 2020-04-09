@@ -26,9 +26,9 @@ const userSchema = new Schema(
     },
     isThirdPartyUser: {
       type: Boolean,
-      required: true
+      required: false
     },
-    accessToken: {
+    activationToken: {
       type: String,
       trim: true
     }
@@ -50,18 +50,18 @@ userSchema.statics.findByEmailAndPassword = async (email, password) => {
 
 userSchema.methods.generateToken = async function() {
   const user = this;
-  const accessToken = sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
+  const activationToken = sign({ id: user._id }, process.env.TOKEN_KEY, {
     expiresIn: "12h"
   });
-  user.accessToken = accessToken;
+  user.activationToken = activationToken;
   await user.save();
-  return accessToken;
+  return activationToken;
 };
 
 userSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;
-  delete user.accessToken;
+  delete user.activationToken;
   delete user.__v;
   return user;
 };

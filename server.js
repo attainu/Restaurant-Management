@@ -13,7 +13,6 @@ const foodRoutes = require("./routes/foodRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const home_page = require("./routes/home_page");
-
 // Init
 const app = express();
 app.use(morgan('dev'));
@@ -26,10 +25,10 @@ app.use(body_parser.json());
 app.use((req,res,next) => {
   res.header("Access-Control-Allow-Origin","*");
   res.header("Access-Control-Allow-Header",
-  "Origin, X-Requested-with, Content-Type, Accept, Authorizaton"
+  "*"
   );
   if(req.method === 'OPTIONS'){
-    res.header('Access-Control-Allow-methods', 'PUT, POST, PATCH, DELETE, GET');
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
     return res.status(200).json({});
   }
   next();
@@ -44,14 +43,15 @@ app.use('/food',foodRoutes);
 app.use('/review',reviewRoutes);
 app.use('/order',orderRoutes);
 app.use('/',home_page);
+require('./routes/paytmRoutes')(app)
 
 //unknown error handling
-app.use((req,res,next) => {
-   res.json({
-    status_code: 404,
-    error: `!!!!!  YOU did Something WRONG! Sorry, Try Again  !!!!!`
-  })
-})
+// app.use((req,res,next) => {
+//    res.json({
+//     status_code: 404,
+//     error: `!!!!!  YOU did Something WRONG! Sorry, Try Again  !!!!!`
+//   })
+// })
 
 
 //my port

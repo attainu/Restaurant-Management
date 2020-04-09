@@ -3,7 +3,7 @@ const router = express.Router();
 
 const {
     all_reviews,
-    review_delevery,
+    create_review,
     particular_review,
     review_updated,
     review_Deleted
@@ -11,7 +11,7 @@ const {
 
 router.get('/',all_reviews);
 
-router.post('/reply',review_delevery);
+router.post('/create_review',create_review);
 
 router.get('/:reviewId',particular_review);
 

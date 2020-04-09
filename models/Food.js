@@ -30,6 +30,11 @@ const recipieSchema = new Schema({
   publisher_url:{
     // required: true,
     type: String,
+  },
+  reviews:{
+    //required:false,
+    type:String,
+    ref:'review'
   }
 },{ timestamps: true },);
 

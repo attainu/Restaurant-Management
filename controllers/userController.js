@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { hash, compare } = require("bcryptjs")
 const Joi = require("@hapi/joi");
-// const { sendMailToUser, forgotPasswordmailToUser } = require("../utils/nodeMailer")
+ const { sendMailToUser, forgotPasswordmailToUser } = require("../utils/nodeMailer")
 const User = require("../models/User");
 
 module.exports = {
@@ -14,24 +14,28 @@ module.exports = {
         password: Joi.string().min(3).max(8).required()
       })
       const { error, result } = userInfo.validate({ name: name, email: email, password: password })
-      if (error) return res.status(422).json({ Error: error.message })
+      if (error) return res.status(422).json({ Erro: error.message })
   
       const emailCheck = await User.findOne({ email: req.body.email })
-      console.log(emailCheck)
+      console.log(`emailCheck Error line 20 user controller :${emailCheck}`)
       if (emailCheck) return res.send("invalid request");
-      const activationToken = await jwt.sign({ id: Math.random() }, process.env.TEMP_KEY, { expiresIn: 1000 * 1000 * 60 })
+      const activationToken = await jwt.sign({ id: Math.random() }, process.env.TOKEN_KEY, { expiresIn: 1000 * 1000 * 60 })
       const user = await new User({ ...req.body });
-      console.log(user)
+      console.log(`user from line no 24 :${user}`)
       if (!user) return res.send("invalid request")
       const hashedPassword = await hash(req.body.password, 10);
       user.password = hashedPassword;
       user.activationToken = activationToken;
       user.save()
       sendMailToUser(user.name, user.email, activationToken);
-      res.status(202).send(`${req.body.name}'s account registered Successfully`);
+      res.status(202).json({
+        res:`${req.body.name}'s account registered Successfully`,
+        message:"EMAIL SEND SUCCESSFULLY GO THERE AND ACTIVATE YOUR ACCOUNT TO AVAIL THE BENEFITS.."
+          });
+      console.log("EMAIL SEND SUCCESSFULLY GO THERE AND ACTIVATE YOUR ACCOUNT TO AVAIL THE BENEFITS..")
     }
     catch (err) {
-        return res.status(400).send(`Validation Error: ${err.message}`);
+        return res.status(400).send(`Validation Error line 38: ${err.message}`);
     }
   },
 
@@ -50,7 +54,7 @@ module.exports = {
       if (!user.isVerified) return res.status(401).send("You are not verified, please activate link sent to you through Email");
   
       console.log(user)
-      const token = await jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 1000 * 600 * 100 })
+      const token = await jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN, { expiresIn: 1000 * 600 * 100 })
       user.jwt = token;
       user.save()
       return res.status(202).send({ token })
@@ -59,7 +63,28 @@ module.exports = {
       return res.status(500).send(err.message)
     }
   },
-  
+  //----------------------------------------------------------------------
+
+  async accountActivation(req, res) {
+    try {
+        // if (!req.query.user) throw new Error("invalid route")
+        if (!req.params.activationToken) return res.status(401)
+        const payload = await jwt.verify(req.params.activationToken, process.env.TOKEN_KEY);
+        if (payload) {
+            const updated = await User.findOneAndUpdate( {activationToken: req.params.activationToken},{ isVerified: true, activationToken: null })               
+            if (updated) return res.status(202).send("Account activated Successfully.Now onward you can order something");
+            else return res.send("Account already activated")
+        }
+        return res.send("Invalid Token")
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).send(err)
+    }
+} ,
+
+
+
     // --------------------------- Forgot Password to send OTP -------------------------
     async forgotPassword(req, res) {
       try {

@@ -5,23 +5,28 @@ const {
   getUser,
   updateUser,
   deleteUser,
-  forgotPassword
+  forgotPassword,
+  accountActivation
 
 } = require("../controllers/userController");
+
+const {authAdmin } = require("../middleware/authenticate")
 
 const router = Router();
 
 router.post("/register", register);
 
-router.get('/:userid', getUser);
+router.get(`/:activationToken`, accountActivation) 
 
-router.put('/:userid', updateUser);
+router.get('/:userid',authAdmin, getUser);
 
-router.delete('/:userid', deleteUser);
+router.put('/:userid',authAdmin, updateUser);
+
+router.delete('/:userid',authAdmin, deleteUser);
 
 router.post("/login", login);
 
-router.get("/profile", getUser);
+router.get("/profile",authAdmin, getUser);
 
 router.post("/forgotPassword", forgotPassword);
 
