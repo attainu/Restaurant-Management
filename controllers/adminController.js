@@ -17,24 +17,54 @@ async register(req, res) {
     const { error, result } = AdminInfo.validate({ name: name, email: email, password: password })
     if (error) return res.status(422).json({ Error: error.message })
 
-   const emailCheck = await Admin.findOne({ email: req.body.email })
-    
+    const emailCheck = await Admin.findOne({ email: req.body.email })
+    console.log(`EmailCheck From line 21 Admin controller :${emailCheck}`)
     if (emailCheck) return res.send("invalid request, Already Exists");
-    console.log(emailCheck)
-    const activationToken = jwt.sign ({ id: Math.random() }, process.env.TEMP_KEY, { expiresIn: 1000 * 1000 * 60 })
-    const hashedPassword = await hash(req.body.password, 10);
+    const activationToken = jwt.sign({ id: Math.random() }, process.env.TEMP_TOKEN_SECRET, { expiresIn: 1000 * 1000 * 60 })
     const admin = await new Admin({ ...req.body});
-    console.log(admin,activationToken,hashedPassword)
+    console.log(`Admin from line no 25 :${admin}`)
+    const hashedPassword = await hash(req.body.password, 10);
+    // console.log(admin,activationToken,hashedPassword)
     if (!admin) return res.send("invalid request")
+    // admin.password = hashedPassword;
+    admin.activationToken = activationToken;
     admin.save()
-    sendMailToAdmin(admin.email, activationToken);
-    res.status(202).send(`${req.body.name}'s account registered Successfully`);
+    sendMailToAdmin(admin.name, admin.email, activationToken);
+    res.status(202).json({
+        res:`${req.body.name}'s THE Admin account registered Successfully`,
+        message:"EMAIL SEND SUCCESSFULLY GO THERE AND ACTIVATE YOUR ACCOUNT TO AVAIL THE BENEFITS.."
+      })
+      console.log("EMAIL SEND SUCCESSFULLY GO THERE AND ACTIVATE YOUR ACCOUNT TO AVAIL THE BENEFITS..")
   }
   catch (err) {
       return res.status(400).send(`Validation Error: ${err.message}`);
   }
 },
 
+//======================================================================
+
+
+    async accountActivation(req, res) {
+        try {
+            if (!req.query.admin) throw new Error("invalid route")
+
+            else if (req.query.admin === "Job-Provider") var schema = JobProviderDetails
+            else if (req.query.admin === "Job-Seeker") var schema = JobSeekerDetails;
+            else throw new Error("invalid route")
+            if (!req.params.activationtoken) return res.status(401)
+            const payload = await jwt.verify(req.params.activationtoken, process.env.TEMP_TOKEN_SECRET);
+            if (payload) {
+                const updated = await schema.findOneAndUpdate( {activationToken: req.params.activationtoken},{ isVerified: true, activationToken: null })               
+                if (updated) return res.status(202).send("Account activated Successfully.");
+                return res.send("Account already activated")
+            }
+            return res.send("Invalid Token")
+        }
+        catch (err) {
+            console.log(err)
+            res.status(500).send(err)
+        }
+    } ,
 
 //======================================================================
 
@@ -105,10 +135,10 @@ async login(req, res) {
     if (!admin) return res.status(400).send("Incorrect credentials");
     const isMatched = compare(password, admin.password);
     if (!isMatched) throw new Error("Invalid credentials");
-    // if (!admin.isVerified) return res.status(401).send("You are not verified, please activate link sent to you through Email");
+    if (!admin.isVerified) return res.status(401).send("You are not verified, please activate link sent to you through Email");
 
     console.log(admin)
-    const token = await jwt.sign({ _id: admin._id }, process.env.ACCESS_TOKEN, { expiresIn: 1000 * 600 * 100 })
+    const token = await jwt.sign({ _id: admin._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: 1000 * 600 * 100 })
     admin.jwt = token;
     admin.save()
     return res.status(202).send({ token })

@@ -50,7 +50,7 @@ userSchema.statics.findByEmailAndPassword = async (email, password) => {
 
 userSchema.methods.generateToken = async function() {
   const user = this;
-  const activationToken = sign({ id: user._id }, process.env.TOKEN_KEY, {
+  const activationToken = sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "12h"
   });
   user.activationToken = activationToken;

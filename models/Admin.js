@@ -25,7 +25,7 @@ const adminSchema = new Schema(
       type: Boolean,
       required: false
     },
-    accessToken: {
+    activationToken: {
       type: String,
       trim: true
     }
@@ -48,12 +48,12 @@ adminSchema.statics.findByEmailAndPassword = async (email, password) => {
 
 adminSchema.methods.generateToken = async function() {
   const admin = this;
-  const accessToken = sign({ id: admin._id }, process.env.JWT_SECRET_KEY, {
+  const activationToken = sign({ id: admin._id }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "12h"
   });
-  admin.accessToken = accessToken;
+  admin.activationToken = activationToken;
   await admin.save();
-  return accessToken;
+  return activationToken;
 };
 
 adminSchema.methods.toJSON = function() {

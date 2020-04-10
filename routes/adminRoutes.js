@@ -5,7 +5,8 @@ const {
   showAdminData,
   deleteAdmin,
   Admin_updated,
-  forgotPassword  
+  forgotPassword,
+  accountActivation 
 
 } = require("../controllers/adminController");
 
@@ -22,5 +23,8 @@ router.delete('/:adminId',deleteAdmin);
 router.patch('/:adminId',Admin_updated);
 
 router.patch('/:adminId',forgotPassword);
+
+router.get(`/:activationToken`, accountActivation) 
+
 
 module.exports = router;

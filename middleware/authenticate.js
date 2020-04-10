@@ -3,7 +3,7 @@ var AdminDetails = require("../models/Admin");
 
 module.exports = {
 
-async authAdmin (req,res,next){
+async auth(req,res,next){
     try {
         const token = req.header('Authorization')
         if (!token) return res.sendStatus(401)

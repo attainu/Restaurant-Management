@@ -10,7 +10,7 @@ const {
 
 } = require("../controllers/userController");
 
-const {authAdmin } = require("../middleware/authenticate")
+const {auth } = require("../middleware/authenticate")
 
 const router = Router();
 
@@ -18,15 +18,15 @@ router.post("/register", register);
 
 router.get(`/:activationToken`, accountActivation) 
 
-router.get('/:userid',authAdmin, getUser);
+router.get('/:userid',auth, getUser);
 
-router.put('/:userid',authAdmin, updateUser);
+router.patch('/:userid',auth, updateUser);
 
-router.delete('/:userid',authAdmin, deleteUser);
+router.delete('/:userid',auth, deleteUser);
 
 router.post("/login", login);
 
-router.get("/profile",authAdmin, getUser);
+router.get("/profile",auth, getUser);
 
 router.post("/forgotPassword", forgotPassword);
 
